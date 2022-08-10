@@ -9,15 +9,15 @@ ros::NodeHandle  nh;
 sensor_msgs::Range range_msg;
 ros::Publisher pub_range( "/ultrasound", &range_msg);
 
-int pingPin = 7;
-int inPin = 8;
-int ledPin = 13;
-//long range_time = 0;
+int trigPin = 7;  //trig
+int echoPin = 8;  //echo
+HCSR04 hc(trigPin, echoPin);  //initialisation class HCSR04 (trig pin , echo pin)
 char frameid[] = "/ultrasound";
 
 
 void setup() {
   nh.initNode();
+  //Serial.begin(57600);    //this don't matter
   nh.advertise(pub_range);
   range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
   range_msg.header.frame_id =  frameid;
@@ -28,8 +28,9 @@ void setup() {
 
 void loop()
 {
-    range_msg.range = hc.dist()*100;  //hc.dist returns cm
+    range_msg.range = hc.dist()/100;  //hc.dist returns cm convert to m
     range_msg.header.stamp = nh.now();
     pub_range.publish(&range_msg);
     nh.spinOnce();
+    delay(100);
 }
